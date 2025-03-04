@@ -89,13 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                   </div>`;
                 } else {
                     newContent = `
-                      <div class="flex flex-col md:flex-row flex-1">
-                        <div class="option-box md:w-1/2 w-full flex flex-col items-center justify-center text-center m-4 rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative" data-option="a" data-question-id="${data.id}">
+                      <div class="flex flex-col md:flex-row flex-1 gap-4">
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-6 md:w-1/2 w-full rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative option-box" data-option="a" data-question-id="${data.id}">
                           <h1 class="text-3xl font-light p-6" id="option-a-text">${data.option_a}</h1>
                           <p class="text-2xl font-semibold mb-6 is-hidden" id="option-a-votes"></p>
                           <div id="bar-a" class="result-bar hidden"></div>
                         </div>
-                        <div class="option-box md:w-1/2 w-full flex flex-col items-center justify-center text-center m-4 rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative" data-option="b" data-question-id="${data.id}">
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-6 md:w-1/2 w-full rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative option-box" data-option="b" data-question-id="${data.id}">
                           <h1 class="text-3xl font-light p-6" id="option-b-text">${data.option_b}</h1>
                           <p class="text-2xl font-semibold mb-6 is-hidden" id="option-b-votes"></p>
                           <div id="bar-b" class="result-bar hidden"></div>
