@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Would You Rather</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+  </head>
+  <body class="min-h-screen flex flex-col bg-gradient-to-br from-slate-800 to-slate-900 relative">
+    <header class="text-center pt-8">
+      <h1 class="text-slate-100 text-4xl font-light mb-2 slide-in-up opacity-0" style="animation-delay: 0.1s;">Would You Rather?</h1>
+    </header>
+    <main id="question-content" class="flex flex-1 mt-8 p-4">
+      {% if question %}
+        <div class="flex flex-col md:flex-row flex-1 gap-4">
+          <div class="flex-1 flex flex-col items-center justify-center text-center p-6 md:w-1/2 w-full rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative option-box" data-option="a" data-question-id="{{ question.id }}">
+            <h1 class="text-3xl font-light p-6" id="option-a-text">{{ question.option_a }}</h1>
+            <p class="text-2xl font-semibold mb-6 is-hidden" id="option-a-votes"></p>
+            <div id="bar-a" class="result-bar hidden"></div>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-center text-center p-6 md:w-1/2 w-full rounded-lg shadow-lg bg-slate-700 text-white cursor-pointer relative option-box" data-option="b" data-question-id="{{ question.id }}">
+            <h1 class="text-3xl font-light p-6" id="option-b-text">{{ question.option_b }}</h1>
+            <p class="text-2xl font-semibold mb-6 is-hidden" id="option-b-votes"></p>
+            <div id="bar-b" class="result-bar hidden"></div>
+          </div>
+        </div>
+      {% else %}
+        <div class="flex flex-1 items-center justify-center">
+          <h1 class="text-2xl font-light text-slate-300">No approved questions yet.</h1>
+        </div>
+      {% endif %}
+    </main>
+
+    <div class="fab-container">
+      <div class="fab-menu">
+        <button class="fab-item" id="fab-add" title="Add a new question">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+        <button class="fab-item" id="fab-search" title="Search">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+        <button class="fab-item" id="fab-stats" title="Statistics">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h4v10H3V10m7-4h4v14h-4V6m7 8h4v6h-4v-6" />
+          </svg>
+        </button>
+        <button class="fab-item" id="fab-about" title="About">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 110 20 10 10 0 010-20zm0 14h-2v2h2v-2zm0-8a3 3 0 00-3 3h2a1 1 0 112 0c0 .6-.4 1-1 1h-1v2h1c1.7 0 3-1.3 3-3s-1.3-3-3-3z" />
+          </svg>
+        </button>
+      </div>
+      <button class="fab-main" id="fab-toggle">
+        <svg id="fab-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white transition-transform duration-300 ease-in-out" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="ask-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 modal">
+      <div class="modal-content bg-slate-800 rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative border border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-light text-white">Add a New Question</h3>
+          <button class="text-slate-400 hover:text-white transition-colors close-modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <form id="question-form" class="relative z-10">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-4">
+            <label class="block mb-2 text-sm font-medium text-slate-300">Option A</label>
+            <input type="text" name="option_a" id="option_a" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500" required />
+          </div>
+          <div class="mb-6">
+            <label class="block mb-2 text-sm font-medium text-slate-300">Option B</label>
+            <input type="text" name="option_b" id="option_b" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500" required />
+          </div>
+          <div id="form-status" class="mb-4 text-sm hidden"></div>
+          <button id="submit-btn" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-500 transition-all w-full" type="submit">Submit Question</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="stats-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 modal">
+      <div class="modal-content bg-slate-800 rounded-lg shadow-xl w-11/12 max-w-2xl p-6 relative border border-slate-700 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6 bg-slate-800 pb-2">
+          <h3 class="text-2xl font-light text-white">Statistics</h3>
+          <button class="text-slate-400 hover:text-white transition-colors close-modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        {% if statistics %}
+          <div class="grid grid-cols-1 gap-8">
+            {% for stat in statistics %}
+              <div class="bg-slate-700 rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-2 text-white">{{ stat.title }}</h2>
+                <p class="text-slate-300 mb-4">{{ stat.description }}</p>
+                <div class="p-4 bg-slate-600 rounded">
+                  <h3 class="text-lg font-medium text-white mb-2">{{ stat.question.question_text }}</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-500 rounded p-4 text-center">
+                      <p class="text-white font-bold mb-1">{{ stat.question.option_a }}</p>
+                      <p class="text-slate-200">{{ stat.question.votes_a }} votes ({{ stat.question.percentage_a }}%)</p>
+                    </div>
+                    <div class="bg-slate-500 rounded p-4 text-center">
+                      <p class="text-white font-bold mb-1">{{ stat.question.option_b }}</p>
+                      <p class="text-slate-200">{{ stat.question.votes_b }} votes ({{ stat.question.percentage_b }}%)</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-300 mt-2">Submitted on {{ stat.question.submission_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-center text-white">No statistics available at the moment.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div id="about-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 modal">
+      <div class="modal-content bg-slate-800 rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative border border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-light text-white">About This App</h3>
+          <button class="text-slate-400 hover:text-white transition-colors close-modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="text-slate-200">
+          <p class="text-lg mb-4">This is a simple "Would You Rather" voting application built with Flask, SQLAlchemy, and Tailwind CSS.</p>
+          <p class="text-lg">It demonstrates an animated popup menu for quick access to actions such as adding a question, viewing statistics, and learning about the application.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="search-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 modal">
+      <div class="modal-content bg-slate-800 rounded-lg shadow-xl w-11/12 max-w-xl p-6 relative border border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-light text-white">Search Questions</h3>
+          <button class="text-slate-400 hover:text-white transition-colors close-modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <form id="search-form" action="{{ url_for('main.search') }}" method="GET">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input type="text" name="q" id="search-input" placeholder="Type to search..." class="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" autofocus />
+          </div>
+          <div class="flex justify-end space-x-2 mt-6">
+            <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-500 transition-colors">Search</button>
+            <button type="submit" class="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-500 transition-colors">View All</button>
+          </div>
+        </form>
+        <div class="text-slate-300 text-sm mt-6">
+          <p>Hit Enter to search, or click "View All" to see all questions.</p>
+        </div>
+      </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fab.js') }}"></script>
+  </body>
+</html>

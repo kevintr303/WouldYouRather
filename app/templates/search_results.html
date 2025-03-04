@@ -1,0 +1,137 @@
+{% extends "base_layout.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-light mb-4 text-center text-white slide-in-up">Search Results</h1>
+    
+    {% if query %}
+    <p class="text-xl text-center text-slate-400 mb-8 slide-in-up" style="animation-delay: 0.1s;">
+        Showing results for "{{ query }}"
+    </p>
+    {% else %}
+    <p class="text-xl text-center text-slate-400 mb-8 slide-in-up" style="animation-delay: 0.1s;">
+        Showing all questions
+    </p>
+    {% endif %}
+    
+    <div class="mb-8 bg-slate-800 rounded-lg p-4 slide-in-up" style="animation-delay: 0.2s;">
+        <form action="{{ url_for('main.search') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Search questions..." 
+                    value="{{ query }}"
+                    class="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+            </div>
+            
+            <div class="flex gap-2">
+                <select name="sort" class="bg-slate-700 border border-slate-600 rounded-md text-white p-2 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                    <option value="most_votes" {% if sort == 'most_votes' %}selected{% endif %}>Most Votes</option>
+                </select>
+                
+                <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-500 transition-colors">
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    {% if questions %}
+        <ul class="space-y-4">
+            {% for question in questions %}
+                <li class="bg-slate-800 rounded-lg shadow-lg p-8 border border-slate-700 opacity-0 slide-in-up" style="animation-delay: {{ loop.index0 * 0.1 + 0.3 }}s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-medium text-white">Would you rather...</h2>
+                        <span class="text-sm text-slate-400">{{ question.submission_date.strftime('%Y-%m-%d') }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-700 p-4 rounded-lg">
+                            <p class="text-white">{{ question.option_a }}</p>
+                            <div class="mt-2 flex items-center">
+                                <div class="h-2 bg-teal-600 rounded-full" style="width: {{ (question.votes_a / (question.votes_a + question.votes_b) * 100) if (question.votes_a + question.votes_b) > 0 else 0 }}%"></div>
+                                <span class="ml-2 text-slate-300 text-sm">{{ question.votes_a }} votes</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-700 p-4 rounded-lg">
+                            <p class="text-white">{{ question.option_b }}</p>
+                            <div class="mt-2 flex items-center">
+                                <div class="h-2 bg-teal-600 rounded-full" style="width: {{ (question.votes_b / (question.votes_a + question.votes_b) * 100) if (question.votes_a + question.votes_b) > 0 else 0 }}%"></div>
+                                <span class="ml-2 text-slate-300 text-sm">{{ question.votes_b }} votes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <a href="{{ url_for('main.home', id=question.id) }}" class="text-teal-400 hover:text-teal-300 transition-colors text-sm">
+                            Go to question
+                        </a>
+                        {% if current_user.is_authenticated %}
+                            <form action="{{ url_for('admin.remove', question_id=question.id) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-500 transition-colors text-sm">Remove</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <div class="flex justify-center mt-8 slide-in-up" style="animation-delay: 0.5s;">
+                <div class="flex space-x-1">
+                    {% if pagination.has_prev %}
+                        <a href="{{ url_for('main.search', q=query, sort=sort, page=pagination.prev_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-600 transition-colors">
+                            Previous
+                        </a>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == pagination.page %}
+                                <span class="px-4 py-2 bg-teal-600 text-white rounded-md">
+                                    {{ page_num }}
+                                </span>
+                            {% else %}
+                                <a href="{{ url_for('main.search', q=query, sort=sort, page=page_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-600 transition-colors">
+                                    {{ page_num }}
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <span class="px-4 py-2 text-slate-400">…</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                        <a href="{{ url_for('main.search', q=query, sort=sort, page=pagination.next_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-600 transition-colors">
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="bg-slate-800 rounded-lg p-12 text-center shadow-lg border border-slate-700 slide-in-up" style="animation-delay: 0.3s;">
+            <p class="text-slate-400 text-xl">No questions found.</p>
+        </div>
+    {% endif %}
+    
+    <div class="mt-8 text-center">
+        <a href="{{ url_for('main.home') }}" class="text-teal-400 hover:text-teal-300 transition-colors slide-in-up" style="animation-delay: 0.6s;">
+            Back to home
+        </a>
+    </div>
+</div>
+{% endblock %}

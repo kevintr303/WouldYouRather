@@ -1,0 +1,259 @@
+html,
+body {
+    overflow-x: hidden;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.slide-in-up {
+    animation: slideInUp 0.5s ease-out forwards;
+}
+
+.scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.slide-out-left {
+    animation: slideOutLeft 0.4s ease-in-out forwards;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.4s ease-in-out forwards;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+.modal-fade-in {
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-fade-out {
+    animation: modalFadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.is-hidden {
+    display: none;
+}
+
+.option-box {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.option-box:hover {
+    transform: translateY(-5px);
+}
+
+.option-box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.option-box:hover::after {
+    opacity: 1;
+}
+
+@keyframes growBar {
+    from {
+        width: 0;
+    }
+}
+
+.result-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    animation: growBar 1s ease-out forwards;
+}
+
+.fab-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 50;
+}
+
+.fab-main {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #14b8a6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.fab-container.open .fab-main svg {
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.fab-container.open .fab-menu {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fab-item {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #14b8a6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    margin-bottom: 10px;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.fab-container.open .fab-item {
+    transform: translateY(0);
+}
+
+.search-result-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spotlight-modal-content {
+    transform: scale(0.95);
+    opacity: 0;
+    animation: spotlightIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes spotlightIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.spotlight-search-input:focus {
+    box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.4);
+}

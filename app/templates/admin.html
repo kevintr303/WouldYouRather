@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+  </head>
+  <body class="min-h-screen bg-slate-900">
+    <div class="max-w-4xl mx-auto py-12 px-4">
+      <div class="flex justify-end mb-4">
+        <form action="{{ url_for('admin.admin_logout') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-all text-sm shadow-md" type="submit">
+            Logout
+          </button>
+        </form>
+      </div>
+      <h1 class="text-4xl font-light mb-4 text-center text-white">Admin Panel</h1>
+      <p class="text-xl text-center text-slate-400 mb-8">Manage Pending Questions</p>
+      {% if questions %}
+        <ul class="space-y-4">
+          {% for question in questions %}
+            <li class="bg-slate-800 rounded-lg shadow-lg p-5 mb-4 border border-slate-700 opacity-0 slide-in-up" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+              <div class="flex justify-between flex-wrap gap-4">
+                <div class="flex-1">
+                  <p class="text-slate-300 mb-3">
+                    <span class="text-slate-400 text-sm uppercase tracking-wider">Option A</span><br />
+                    <span class="text-white text-lg">{{ question.option_a }}</span>
+                  </p>
+                </div>
+                <div class="flex-1">
+                  <p class="text-slate-300 mb-3">
+                    <span class="text-slate-400 text-sm uppercase tracking-wider">Option B</span><br />
+                    <span class="text-white text-lg">{{ question.option_b }}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="flex space-x-3 mt-4">
+                <form action="{{ url_for('admin.approve', question_id=question.id) }}" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all text-sm shadow-md" type="submit">Approve</button>
+                </form>
+                <form action="{{ url_for('admin.reject', question_id=question.id) }}" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded hover:bg-slate-600 transition-all text-sm shadow-md" type="submit">Reject</button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="bg-slate-800 rounded-lg p-12 text-center shadow-lg border border-slate-700">
+          <p class="text-slate-400 text-xl">No pending questions.</p>
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
