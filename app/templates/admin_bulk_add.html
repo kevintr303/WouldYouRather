@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bulk Add Questions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+  </head>
+  <body class="min-h-screen bg-slate-900">
+    <div class="max-w-4xl mx-auto py-12 px-4">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-light text-white">Bulk Add Questions</h1>
+        <a href="{{ url_for('admin.admin_panel') }}" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all">
+          Back to Admin Panel
+        </a>
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-4">
+            {% for category, message in messages %}
+              <p class="text-sm {% if category == 'success' %}text-green-400{% else %}text-red-400{% endif %}">
+                {{ message }}
+              </p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      <form action="{{ url_for('admin.bulk_add') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-4">
+          <label class="block text-slate-300 text-sm font-medium mb-2">Bulk Questions</label>
+          <textarea name="bulk_questions" rows="10" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Format: Option A || Option B&#10;Each question on a new line."></textarea>
+        </div>
+        <button type="submit" class="w-full px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all">
+          Add Questions
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

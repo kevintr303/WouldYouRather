@@ -11,7 +11,10 @@
   </head>
   <body class="min-h-screen bg-slate-900">
     <div class="max-w-4xl mx-auto py-12 px-4">
-      <div class="flex justify-end mb-4">
+      <div class="flex justify-between mb-4">
+        <a href="{{ url_for('admin.bulk_add') }}" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all text-sm shadow-md">
+          Bulk Add Questions
+        </a>
         <form action="{{ url_for('admin.admin_logout') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-all text-sm shadow-md" type="submit">
@@ -42,16 +45,51 @@
               <div class="flex space-x-3 mt-4">
                 <form action="{{ url_for('admin.approve', question_id=question.id) }}" method="post">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all text-sm shadow-md" type="submit">Approve</button>
+                  <button class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-500 transition-all text-sm shadow-md" type="submit">
+                    Approve
+                  </button>
                 </form>
                 <form action="{{ url_for('admin.reject', question_id=question.id) }}" method="post">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded hover:bg-slate-600 transition-all text-sm shadow-md" type="submit">Reject</button>
+                  <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded hover:bg-slate-600 transition-all text-sm shadow-md" type="submit">
+                    Reject
+                  </button>
                 </form>
               </div>
             </li>
           {% endfor %}
         </ul>
+        {% if pagination.pages > 1 %}
+          <div class="flex justify-center mt-8">
+            <div class="flex space-x-2">
+              {% if pagination.has_prev %}
+                <a href="{{ url_for('admin.admin_panel', page=pagination.prev_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">
+                  Previous
+                </a>
+              {% endif %}
+              {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                  {% if page_num == pagination.page %}
+                    <span class="px-4 py-2 bg-teal-600 text-white rounded">
+                      {{ page_num }}
+                    </span>
+                  {% else %}
+                    <a href="{{ url_for('admin.admin_panel', page=page_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">
+                      {{ page_num }}
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="px-4 py-2">…</span>
+                {% endif %}
+              {% endfor %}
+              {% if pagination.has_next %}
+                <a href="{{ url_for('admin.admin_panel', page=pagination.next_num) }}" class="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">
+                  Next
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
       {% else %}
         <div class="bg-slate-800 rounded-lg p-12 text-center shadow-lg border border-slate-700">
           <p class="text-slate-400 text-xl">No pending questions.</p>
